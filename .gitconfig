@@ -1,0 +1,9 @@
+[user]
+	email = eshpolatovmiraziz@gmail.com
+	name = EshpolatovM
+[push]
+	autoSetupRemote = true
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
