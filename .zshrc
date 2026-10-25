@@ -48,3 +48,4 @@ alias pps="podman ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 
 # Maxfiy mahalliy o'zgaruvchilar (agar mavjud bo'lsa, Git'ga kirmaydi)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+alias eza='eza --tree'
