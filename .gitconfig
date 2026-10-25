@@ -1,9 +1,16 @@
 [user]
 	email = eshpolatovmiraziz@gmail.com
 	name = EshpolatovM
+	signingkey = /home/miraziz/.ssh/id_ed25519.pub
 [push]
 	autoSetupRemote = true
 [init]
 	defaultBranch = main
 [pull]
 	rebase = true
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
+[core]
+	excludesfile = /home/miraziz/.gitignore_global
