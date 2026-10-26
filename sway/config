@@ -1,9 +1,14 @@
 # Default config for sway
-#
 # Copy this to ~/.config/sway/config and edit it to your liking.
 #
 # Read `man 5 sway` for a complete reference.
+# Butun ekranni olib clipboard'ga nusxalash (PrtSc)
+bindsym Print exec grim - | wl-copy
+# Belgilangan maydonni tanlab olish (Shift + PrtSc)
+bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
 
+# Rasm qilib ~/Pictures papkasiga saqlash (Alt + PrtSc)
+bindsym Mod1+Print exec grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
 ### Variables
 #
 # Logo key. Use Mod1 for Alt.
@@ -21,7 +26,7 @@ set $menu wmenu-run
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+output * bg ~/.config/sway/wallpaper.png fill
 #
 # Example configuration:
 #
@@ -44,18 +49,20 @@ output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 
 ### Input configuration
 #
-# Example configuration:
-#
-#   input type:touchpad {
-#       dwt enabled
-#       tap enabled
-#       natural_scroll enabled
-#       middle_emulation enabled
-#   }
-#
-#   input type:keyboard {
-#       xkb_layout "eu"
-#   }
+input type:keyboard {
+    repeat_delay 220
+    repeat_rate 45
+    xkb_options caps:escape
+}
+
+input type:touchpad {
+    dwt enabled
+    tap enabled
+    natural_scroll enabled
+    middle_emulation enabled
+}
+
+bindsym $mod+Shift+t input type:touchpad events toggle enabled disabled
 #
 # You can also configure each device individually.
 # Read `man 5 sway-input` for more information about this section.
@@ -197,6 +204,18 @@ mode "resize" {
     bindsym Escape mode "default"
 }
 bindsym $mod+r mode "resize"
+
+# Floating window move mode
+mode "move" {
+    bindsym h move left 25px
+    bindsym j move down 25px
+    bindsym k move up 25px
+    bindsym l move right 25px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+m mode "move"
+bindsym $mod+c move position center
 #
 # Utilities:
 #
@@ -209,7 +228,7 @@ bindsym $mod+r mode "resize"
     bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
     bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
     # Special key to take a screenshot with grim
-    bindsym Print exec grim
+   # bindsym Print exec grim
 
 #
 # Status Bar:
@@ -254,7 +273,7 @@ assign [class="^jetbrains-webstorm$" title="^((?!win0).)*$"] workspace number 1
 assign [app_id="^jetbrains-webstorm$" title="^((?!win0).)*$"] workspace number 1
 
 # 2. Barcha dialog, refactor va yordamchi oynalarni suzuvchi qilish
-for_window [class="^jetbrains-.+" window_type="dialog"] floating enable, border normal
+for_window [class="^jetbrains-.+" window_type="dialog"] floating enable, border pixel 0
 for_window [class="^jetbrains-.+" window_type="menu"] floating enable
 for_window [class="^jetbrains-.+" window_type="utility"] floating enable
 for_window [class="^jetbrains-.+" window_type="popup_menu"] floating enable
@@ -270,3 +289,16 @@ for_window [class="^jetbrains-.+" title="Rename"] floating enable
 # 4. Kursor va fokus buzilmasligi uchun
 no_focus [window_role="pop-up"]
 no_focus [class="^jetbrains-.+" title="^win[0-9]+$"]
+
+# No borders or titlebars
+default_border pixel 0
+default_floating_border pixel 0
+for_window [app_id=".*"] border pixel 0
+for_window [class=".*"] border pixel 0
+
+# Stealth Slate (Chalg'itmaydigan, toza va professional ko'rinish)
+# class                 border   backgr.  text     indicator child_border
+client.focused          #4b5263 #282c34 #abb2bf #4b5263   #4b5263
+client.focused_inactive #1e222a #1e222a #5c6370 #1e222a   #1e222a
+client.unfocused        #1e222a #1e222a #5c6370 #1e222a   #1e222a
+client.urgent           #e06c75 #282c34 #ffffff #e06c75   #e06c75
