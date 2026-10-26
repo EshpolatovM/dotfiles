@@ -290,15 +290,13 @@ for_window [class="^jetbrains-.+" title="Rename"] floating enable
 no_focus [window_role="pop-up"]
 no_focus [class="^jetbrains-.+" title="^win[0-9]+$"]
 
-# No borders or titlebars
-default_border pixel 0
-default_floating_border pixel 0
-for_window [app_id=".*"] border pixel 0
-for_window [class=".*"] border pixel 0
+# Window borders
+default_border pixel 2
+default_floating_border pixel 2
 
-# Stealth Slate (Chalg'itmaydigan, toza va professional ko'rinish)
-# class                 border   backgr.  text     indicator child_border
-client.focused          #4b5263 #282c34 #abb2bf #4b5263   #4b5263
-client.focused_inactive #1e222a #1e222a #5c6370 #1e222a   #1e222a
-client.unfocused        #1e222a #1e222a #5c6370 #1e222a   #1e222a
-client.urgent           #e06c75 #282c34 #ffffff #e06c75   #e06c75
+# Window border colors
+# class                 border  bground text    indicator child_border
+client.focused          #dcdcdc #282c34 #ffffff #dcdcdc   #dcdcdc
+client.focused_inactive #3e4452 #1e1e1e #888888 #3e4452   #3e4452
+client.unfocused        #282c34 #1e1e1e #5c6370 #282c34   #282c34
+client.urgent           #e06c75 #e06c75 #ffffff #e06c75   #e06c75

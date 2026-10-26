@@ -50,11 +50,47 @@ link_file() {
   log_success "Linked: $dest -> $src"
 }
 
+setup_zsh_plugins() {
+  local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+  if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    log_warn "Oh My Zsh is not installed at ~/.oh-my-zsh. Skipping custom plugins setup."
+    return
+  fi
+
+  # Powerlevel10k theme
+  if [ ! -d "$zsh_custom/themes/powerlevel10k" ]; then
+    log_info "Cloning Powerlevel10k theme..."
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$zsh_custom/themes/powerlevel10k"
+  fi
+
+  # Custom plugins
+  local plugins=(
+    "zsh-autosuggestions:https://github.com/zsh-users/zsh-autosuggestions"
+    "zsh-syntax-highlighting:https://github.com/zsh-users/zsh-syntax-highlighting"
+    "zsh-completions:https://github.com/zsh-users/zsh-completions"
+    "fzf-tab:https://github.com/Aloxaf/fzf-tab"
+    "zsh-history-substring-search:https://github.com/zsh-users/zsh-history-substring-search"
+  )
+
+  for entry in "${plugins[@]}"; do
+    local name="${entry%%:*}"
+    local url="${entry#*:}"
+    local target="$zsh_custom/plugins/$name"
+
+    if [ ! -d "$target" ]; then
+      log_info "Cloning plugin: $name..."
+      git clone --depth=1 "$url" "$target"
+    fi
+  done
+}
+
 main() {
   log_info "Starting dotfiles setup from: $DOTFILES_DIR"
 
   # 1. Zsh & Prompt Configurations
   log_info "Configuring Zsh & Powerlevel10k..."
+  setup_zsh_plugins
   link_file "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
   link_file "$DOTFILES_DIR/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
 
