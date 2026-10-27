@@ -1,0 +1,193 @@
+"" ============================================================================
+""                 IDEAVIM PROFESSIONAL KONFIGURATSIYASI
+""      Maqsad: Sichqonchasiz toza Vim navigatsiyasi va mushak xotirasi
+"" ============================================================================
+
+"" ----------------------------------------------------------------------------
+"" 1. ASOSIY VA MUHIM SOZLAMALAR
+"" ----------------------------------------------------------------------------
+" Tizim clipboardi bilan integratsiya (Ctrl+C / Ctrl+V tashqaridan ham ulanadi)
+set clipboard+=unnamed
+
+" Qidiruv qulayliklari
+set incsearch           " Harf yozilishi bilan qidiruv natijalarini ko'rsatish
+set hlsearch            " Qidiruv natijalarini rang bilan belgilash
+set ignorecase          " Katta-kichik harflarni farqlamasdan qidirish
+set smartcase           " Agar katta harf yozilsa, qat'iy moslikni qidirish
+
+" Vertikal ko'rish qulayligi va navigatsiya
+set scrolloff=5         " Kursor tepa yoki pastga yetmasdan 5 qator qoldirib ekranni surish
+set showmode            " Joriy rejimni (NORMAL, INSERT, VISUAL) ko'rsatish
+set number              " Qator raqamlarini ko'rsatish
+set relativenumber      " Vertikal sakrashlarni (5j, 12k) tez hisoblash uchun nisbiy raqamlar
+
+" Leader tugmasi (Space tugmasi leader qilib belgilandi)
+let mapleader = " "
+
+" Esc bosilganda qidiruv sariq ranglarini tozalash
+nnoremap <silent> <Esc> :nohlsearch<CR>
+
+" Tezkor Insert rejimidan chiqish (Esc tugmasiga qo'lni cho'zmaslik uchun)
+inoremap jk <Esc>
+inoremap kj <Esc>
+
+"" ----------------------------------------------------------------------------
+"" 2. O'RNATILGAN PLAGINLAR VA KENGAYTMALAR
+"" ----------------------------------------------------------------------------
+set surround            " Qavs va qo'shtirnoqlar bilan ishlash (cs, ds, ys)
+set multiple-cursors    " Bir nechta kursorlar bilan ishlash
+set commentary          " Kodni tezkor izohga olish (gcc - qator, gc - tanlov)
+set easymotion          " Ekranda ko'ringan istalgan joyga tezkor sakrash
+set argtextobj          " Funksiya argumentlari uchun text-objects (cia, dia, via)
+set textobj-entire      " Butun fayl uchun text-objects (dae, yae, vae)
+set highlightedyank     " Nusxa olingan (yank) matnni bir zumga yoritib ko'rsatish
+set ideajoin            " WebStorm ning aqlli qator birlashtirish funksiyasi (J)
+
+"" ----------------------------------------------------------------------------
+"" 3. WEBSTORM VA IDE AMALLARI (SICHQONCHASIZ ISHLASH)
+"" ----------------------------------------------------------------------------
+" Tab va fayllarni boshqarish
+nnoremap <leader>w  :action CloseContent<CR>
+nnoremap <leader>ff :action GotoFile<CR>
+nnoremap <leader>fg :action FindInPath<CR>
+nnoremap <leader>e  :action ActivateProjectToolWindow<CR>
+
+" Kod navigatsiyasi
+nnoremap gd :action GotoDeclaration<CR>
+nnoremap gi :action GotoImplementation<CR>
+nnoremap gr :action FindUsages<CR>
+nnoremap [d :action GotoPreviousError<CR>
+nnoremap ]d :action GotoNextError<CR>
+
+" Refactoring va tezkor amallar
+nnoremap <leader>rn  :action RenameElement<CR>
+nnoremap <leader>ca  :action ShowIntentionActions<CR>
+nnoremap <leader>fmt :action ReformatCode<CR>
+
+" Split oynalar (panellar) o'rtasida harakatlanish (Ctrl+h/j/k/l)
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+"" ----------------------------------------------------------------------------
+"" 4. STRELKALARNI BLOKLASH VA OGOHLANTIRISH (ANTI-ARROW DISCIPLINE)
+"" ----------------------------------------------------------------------------
+" Normal rejimda strelkalarni bloklash
+nnoremap <Up>    :echo "Strelkani bosma! 'k' dan foydalan"<CR>
+nnoremap <Down>  :echo "Strelkani bosma! 'j' dan foydalan"<CR>
+nnoremap <Left>  :echo "Strelkani bosma! 'h' dan foydalan"<CR>
+nnoremap <Right> :echo "Strelkani bosma! 'l' dan foydalan"<CR>
+
+" Insert rejimida strelkalarni bloklash
+inoremap <Up>    <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
+inoremap <Down>  <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
+inoremap <Left>  <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
+inoremap <Right> <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
+
+" Visual rejimda strelkalarni bloklash
+vnoremap <Up>    :<C-u>echo "Strelkani bosma! 'k' dan foydalan"<CR>
+vnoremap <Down>  :<C-u>echo "Strelkani bosma! 'j' dan foydalan"<CR>
+vnoremap <Left>  :<C-u>echo "Strelkani bosma! 'h' dan foydalan"<CR>
+vnoremap <Right> :<C-u>echo "Strelkani bosma! 'l' dan foydalan"<CR>
+
+" Qo'shimcha Shift/Ctrl kombinatsiyali strelkalar
+nnoremap <S-Up>    :echo "Strelkani bosma! 'k' dan foydalan"<CR>
+nnoremap <S-Down>  :echo "Strelkani bosma! 'j' dan foydalan"<CR>
+nnoremap <S-Left>  :echo "Strelkani bosma! 'b' dan foydalan"<CR>
+nnoremap <S-Right> :echo "Strelkani bosma! 'w' dan foydalan"<CR>
+
+"" ----------------------------------------------------------------------------
+"" 5. SEKIN VA ESKIRGAN NAVIGATSIYA TUGMALARI (HOME, END, PAGEUP, PAGEDOWN)
+"" ----------------------------------------------------------------------------
+" --- Home tugmasi (Qator boshiga o'tish) ---
+nnoremap <Home> :echo "Home bosma! Qator boshiga o'tish uchun '0' yoki '^' ishlat"<CR>
+inoremap <Home> <C-o>:echo "Home bosma! Qator boshiga o'tish uchun '0' yoki '^' ishlat"<CR>
+vnoremap <Home> :<C-u>echo "Home bosma! Qator boshiga o'tish uchun '0' yoki '^' ishlat"<CR>
+
+" --- End tugmasi (Qator oxiriga o'tish) ---
+nnoremap <End> :echo "End bosma! Qator oxiriga o'tish uchun '$' yoki 'A' ishlat"<CR>
+inoremap <End> <C-o>:echo "End bosma! Qator oxiriga o'tish uchun '$' yoki 'A' ishlat"<CR>
+vnoremap <End> :<C-u>echo "End bosma! Qator oxiriga o'tish uchun '$' yoki 'A' ishlat"<CR>
+
+" --- PageUp tugmasi (Ekranni yuqoriga surish) ---
+nnoremap <PageUp> :echo "PageUp bosma! Yuqoriga yarim ekran sakrash uchun 'Ctrl+u' ishlat"<CR>
+inoremap <PageUp> <C-o>:echo "PageUp bosma! Yuqoriga yarim ekran sakrash uchun 'Ctrl+u' ishlat"<CR>
+vnoremap <PageUp> :<C-u>echo "PageUp bosma! Yuqoriga yarim ekran sakrash uchun 'Ctrl+u' ishlat"<CR>
+
+" --- PageDown tugmasi (Ekranni pastga surish) ---
+nnoremap <PageDown> :echo "PageDown bosma! Pastga yarim ekran sakrash uchun 'Ctrl+d' ishlat"<CR>
+inoremap <PageDown> <C-o>:echo "PageDown bosma! Pastga yarim ekran sakrash uchun 'Ctrl+d' ishlat"<CR>
+vnoremap <PageDown> :<C-u>echo "PageDown bosma! Pastga yarim ekran sakrash uchun 'Ctrl+d' ishlat"<CR>
+
+" --- Ctrl+Home va Ctrl+End (Fayl boshiga / oxiriga sakrash) ---
+nnoremap <C-Home> :echo "Ctrl+Home bosma! Fayl boshiga o'tish uchun 'gg' ishlat"<CR>
+inoremap <C-Home> <C-o>:echo "Ctrl+Home bosma! Fayl boshiga o'tish uchun 'gg' ishlat"<CR>
+vnoremap <C-Home> :<C-u>echo "Ctrl+Home bosma! Fayl boshiga o'tish uchun 'gg' ishlat"<CR>
+
+nnoremap <C-End> :echo "Ctrl+End bosma! Fayl oxiriga o'tish uchun 'G' ishlat"<CR>
+inoremap <C-End> <C-o>:echo "Ctrl+End bosma! Fayl oxiriga o'tish uchun 'G' ishlat"<CR>
+vnoremap <C-End> :<C-u>echo "Ctrl+End bosma! Fayl oxiriga o'tish uchun 'G' ishlat"<CR>
+
+" --- Ctrl+Left va Ctrl+Right (So'zma-so'z sakrash) ---
+nnoremap <C-Left>  :echo "Ctrl+Left bosma! Oldingi so'z boshiga o'tish uchun 'b' ishlat"<CR>
+inoremap <C-Left>  <C-o>:echo "Ctrl+Left bosma! Esc bosib 'b' ishlat"<CR>
+nnoremap <C-Right> :echo "Ctrl+Right bosma! Keyingi so'z boshiga 'w' yoki oxiriga 'e' ishlat"<CR>
+inoremap <C-Right> <C-o>:echo "Ctrl+Right bosma! Esc bosib 'w' yoki 'e' ishlat"<CR>
+
+"" ----------------------------------------------------------------------------
+"" 6. NOTO'G'RI VA SEKIN O'CHIRISH USULLARI (DELETE, BACKSPACE)
+"" ---------------------------------------------------------------------------
+" Delete tugmasini bloklash
+nnoremap <Delete> :echo "Delete bosma! Bitta harfga 'x', so'zga 'dw'/'ciw', qatorga 'dd' ishlat"<CR>
+inoremap <Delete> <C-o>:echo "Delete bosma! Bitta harfga 'x', so'zga 'dw'/'ciw', qatorga 'dd' ishlat"<CR>
+vnoremap <Delete> :<C-u>echo "Delete bosma! O'chirish uchun 'd' yoki 'c' ishlat"<CR>
+
+" Normal rejimda Backspace bosishni bloklash
+nnoremap <BS> :echo "Backspace bosma! Bitta harf o'chirishga 'x', orqaga qaytishga 'h' ishlat"<CR>
+
+" Insert tugmasini bloklash (Tasodifiy almashtirish rejimiga tushib qolmaslik uchun)
+nnoremap <Insert> :echo "Insert tugmasini bosma! 'i', 'a', 'o', 'A', 'I', 'O' orqali kir"<CR>
+inoremap <Insert> <C-o>:echo "Insert tugmasini bosma!"<CR>
+
+" ESLATMA: Insert rejimida ketma-ket ko'p marta Backspace bosishdan saqlaning:
+"   - Oldingi so'zni butunlay o'chirish uchun: Ctrl + w
+"   - Satr boshigacha bo'lgan hamma narsani o'chirish uchun: Ctrl + u
+"   - So'zni tahrirlash uchun: Esc -> ciw (Change Inside Word)
+
+"" ----------------------------------------------------------------------------
+"" 7. SMART VIM TAHRIRLASH VA HARAKAT QOIDALARI (MUSHAK XOTIRASI MA'LUMOTNOMASI)
+"" ----------------------------------------------------------------------------
+" 1. QATOR BO'YLAB HARAKAT VA YOZISH:
+"    - Qator boshiga o'tib yozish: 'I' (0 + i sekin usulidan voz keching)
+"    - Qator oxiriga o'tib yozish: 'A' ($ + a sekin usulidan voz keching)
+"    - Pastga yangi qator ochib yozish: 'o' (End + Enter bosishdan voz keching)
+"    - Yuqoriga yangi qator ochib yozish: 'O'
+"
+" 2. BIR HARFGA SAKRASH (GORIZONTAL NAVIGATSIYA):
+"    - Qatordagi keyingi belgiga sakrash: 'f<belgi>' (masalan: 'f(' qavsgacha sakraydi)
+"    - Qatordagi oldingi belgiga sakrash: 'F<belgi>'
+"    - Belgining bitta oldiga borib to'xtash: 't<belgi>' yoki 'T<belgi>'
+"    - O'sha qidiruvni takrorlash: ';' (oldinga), ',' (orqaga)
+"
+" 3. MATN OBYEKTLARI (TEXT OBJECTS) - VIMNING ENG KUCHLI QUROLI:
+"    - ciw  -> Change Inside Word (so'z ustida turib so'zni o'chiradi va insertga o'tadi)
+"    - ci"  -> Qo'shtirnoq ichidagi matnni almashtirish
+"    - ci'  -> Bittalik qo'shtirnoq ichini almashtirish
+"    - ci(  yoki cib -> Qavs ichidagi hamma narsani almashtirish
+"    - ci{  yoki ciB -> Jingalak qavs (blok) ichini almashtirish
+"    - ci[  -> To'rtburchak qavs ichini almashtirish
+"    - cit  -> HTML / JSX teglarining ichini almashtirish
+"    - cia  -> Funksiya parametrini/argumentini almashtirish (argtextobj plagini orqali)
+"    - diw / da( / da{ -> O'chirish (delete)
+"    - yiw / ya( / ya{ -> Nusxalash (yank)
+"    - viw / va( / va{ -> Tanlash (visual)
+"
+" 4. SURROUND AMALLARI:
+"    - ysiw" -> So'zni qo'shtirnoqqa o'rash
+"    - cs"'  -> "..." qo'shtirnoqni '...' ga almashtirish
+"    - ds"   -> Qo'shtirnoqni o'chirish
+"
+" 5. EASYMOTION TEZKOR SAKRASH:
+"    - <leader><leader>w -> Ekranda ko'ringan istalgan so'zga sakrash
+"    - <leader><leader>f -> Ekranda ko'ringan istalgan harfga sakrash
