@@ -517,6 +517,9 @@ vim.keymap.set({ "n", "v" }, "<leader>mp", function()
   })
 end, { desc = "Manual format (Prettier)" })
 
+-- Quick Node.js Runner Keymap
+vim.keymap.set("n", "<leader>r", ":w<CR>:!node %<CR>", { noremap = true, silent = false, desc = "Save and run file with node" })
+
 -- Diagnostics & LSP Global Keymaps
 vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP: Code action" })
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Diagnostic: Open float" })
