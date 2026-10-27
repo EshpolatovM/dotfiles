@@ -395,6 +395,10 @@ require("lazy").setup({
   {
     "wakatime/vim-wakatime",
     lazy = false,
+    init = function()
+      vim.g.wakatime_debug = 0
+      vim.g.wakatime_ScreenSaverMode = 0
+    end,
   },
 }, {
   ui = {
