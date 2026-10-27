@@ -7,7 +7,7 @@
 "" 1. ASOSIY VA MUHIM SOZLAMALAR
 "" ----------------------------------------------------------------------------
 " Tizim clipboardi bilan integratsiya (Ctrl+C / Ctrl+V tashqaridan ham ulanadi)
-set clipboard+=unnamed
+set clipboard+=unnamedplus
 
 " Qidiruv qulayliklari
 set incsearch           " Harf yozilishi bilan qidiruv natijalarini ko'rsatish
@@ -50,7 +50,16 @@ set ideajoin            " WebStorm ning aqlli qator birlashtirish funksiyasi (J)
 nnoremap <leader>w  :action CloseContent<CR>
 nnoremap <leader>ff :action GotoFile<CR>
 nnoremap <leader>fg :action FindInPath<CR>
+nnoremap <leader>fb :action RecentFiles<CR>
 nnoremap <leader>e  :action ActivateProjectToolWindow<CR>
+nnoremap <leader>t  :action ActivateTerminalToolWindow<CR>
+
+" Indentatsiyadan keyin visual tanlovni saqlab qolish
+vnoremap < <gv
+vnoremap > >gv
+
+" Insert rejimida Tab bilan delimiterdan sakrab o'tish (EditorRight)
+inoremap <Tab> <action>(EditorRight)
 
 " Kod navigatsiyasi
 nnoremap gd :action GotoDeclaration<CR>
@@ -71,31 +80,31 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
 "" ----------------------------------------------------------------------------
-"" 4. STRELKALARNI BLOKLASH VA OGOHLANTIRISH (ANTI-ARROW DISCIPLINE)
+"" 4. STRELKALARNI BLOKLASH (ANTI-ARROW DISCIPLINE)
 "" ----------------------------------------------------------------------------
 " Normal rejimda strelkalarni bloklash
-nnoremap <Up>    :echo "Strelkani bosma! 'k' dan foydalan"<CR>
-nnoremap <Down>  :echo "Strelkani bosma! 'j' dan foydalan"<CR>
-nnoremap <Left>  :echo "Strelkani bosma! 'h' dan foydalan"<CR>
-nnoremap <Right> :echo "Strelkani bosma! 'l' dan foydalan"<CR>
-
-" Insert rejimida strelkalarni bloklash
-inoremap <Up>    <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
-inoremap <Down>  <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
-inoremap <Left>  <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
-inoremap <Right> <C-o>:echo "Strelkani bosma! Esc bosib harakatlan"<CR>
+nnoremap <Left> <nop>
+nnoremap <Down> <nop>
+nnoremap <Up> <nop>
+nnoremap <Right> <nop>
 
 " Visual rejimda strelkalarni bloklash
-vnoremap <Up>    :<C-u>echo "Strelkani bosma! 'k' dan foydalan"<CR>
-vnoremap <Down>  :<C-u>echo "Strelkani bosma! 'j' dan foydalan"<CR>
-vnoremap <Left>  :<C-u>echo "Strelkani bosma! 'h' dan foydalan"<CR>
-vnoremap <Right> :<C-u>echo "Strelkani bosma! 'l' dan foydalan"<CR>
+vnoremap <Left> <nop>
+vnoremap <Down> <nop>
+vnoremap <Up> <nop>
+vnoremap <Right> <nop>
 
-" Qo'shimcha Shift/Ctrl kombinatsiyali strelkalar
-nnoremap <S-Up>    :echo "Strelkani bosma! 'k' dan foydalan"<CR>
-nnoremap <S-Down>  :echo "Strelkani bosma! 'j' dan foydalan"<CR>
-nnoremap <S-Left>  :echo "Strelkani bosma! 'b' dan foydalan"<CR>
-nnoremap <S-Right> :echo "Strelkani bosma! 'w' dan foydalan"<CR>
+" Insert rejimida strelkalarni bloklash
+inoremap <Left> <nop>
+inoremap <Down> <nop>
+inoremap <Up> <nop>
+inoremap <Right> <nop>
+
+" Qo'shimcha Shift kombinatsiyali strelkalar
+nnoremap <S-Up>    <nop>
+nnoremap <S-Down>  <nop>
+nnoremap <S-Left>  <nop>
+nnoremap <S-Right> <nop>
 
 "" ----------------------------------------------------------------------------
 "" 5. SEKIN VA ESKIRGAN NAVIGATSIYA TUGMALARI (HOME, END, PAGEUP, PAGEDOWN)
@@ -136,19 +145,23 @@ nnoremap <C-Right> :echo "Ctrl+Right bosma! Keyingi so'z boshiga 'w' yoki oxirig
 inoremap <C-Right> <C-o>:echo "Ctrl+Right bosma! Esc bosib 'w' yoki 'e' ishlat"<CR>
 
 "" ----------------------------------------------------------------------------
-"" 6. NOTO'G'RI VA SEKIN O'CHIRISH USULLARI (DELETE, BACKSPACE)
-"" ---------------------------------------------------------------------------
-" Delete tugmasini bloklash
-nnoremap <Delete> :echo "Delete bosma! Bitta harfga 'x', so'zga 'dw'/'ciw', qatorga 'dd' ishlat"<CR>
-inoremap <Delete> <C-o>:echo "Delete bosma! Bitta harfga 'x', so'zga 'dw'/'ciw', qatorga 'dd' ishlat"<CR>
-vnoremap <Delete> :<C-u>echo "Delete bosma! O'chirish uchun 'd' yoki 'c' ishlat"<CR>
+"" 6. O'CHIRISH TUGMALARINI BLOKLASH (DELETE, BACKSPACE DISCIPLINE)
+"" ----------------------------------------------------------------------------
+" Delete tugmasini bloklash (<Del> va <Delete>) across Normal, Visual, and Insert modes
+nnoremap <Del> <nop>
+vnoremap <Del> <nop>
+inoremap <Del> <nop>
+nnoremap <Delete> <nop>
+vnoremap <Delete> <nop>
+inoremap <Delete> <nop>
 
-" Normal rejimda Backspace bosishni bloklash
-nnoremap <BS> :echo "Backspace bosma! Bitta harf o'chirishga 'x', orqaga qaytishga 'h' ishlat"<CR>
+" Backspace (<BS>) tugmasini FAQAT Normal va Visual rejimda bloklash (Insert rejimida saqlangan)
+nnoremap <BS> <nop>
+vnoremap <BS> <nop>
 
 " Insert tugmasini bloklash (Tasodifiy almashtirish rejimiga tushib qolmaslik uchun)
-nnoremap <Insert> :echo "Insert tugmasini bosma! 'i', 'a', 'o', 'A', 'I', 'O' orqali kir"<CR>
-inoremap <Insert> <C-o>:echo "Insert tugmasini bosma!"<CR>
+nnoremap <Insert> <nop>
+inoremap <Insert> <nop>
 
 " ESLATMA: Insert rejimida ketma-ket ko'p marta Backspace bosishdan saqlaning:
 "   - Oldingi so'zni butunlay o'chirish uchun: Ctrl + w
