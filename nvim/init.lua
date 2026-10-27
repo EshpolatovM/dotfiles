@@ -6,6 +6,7 @@ vim.g.maplocalleader = " "
 
 vim.opt.number = true
 vim.opt.relativenumber = true
+vim.opt.cursorline = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
@@ -62,6 +63,7 @@ require("lazy").setup({
         vim.api.nvim_set_hl(0, "NormalNC", { bg = "#000000" })
         vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#000000" })
         vim.api.nvim_set_hl(0, "SignColumn", { bg = "#000000" })
+        vim.api.nvim_set_hl(0, "CursorLine", { bg = "#111111" })
         vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "#000000", fg = "#000000" })
       end
       apply_oled_black()
@@ -197,6 +199,7 @@ require("lazy").setup({
       local autopairs = require("nvim-autopairs")
       autopairs.setup({
         check_ts = true,
+        enable_moveright = true,
         ts_config = {
           lua = { "string" },
           javascript = { "template_string" },
@@ -283,6 +286,23 @@ require("lazy").setup({
       local cmp = require("cmp")
       local has_luasnip, luasnip = pcall(require, "luasnip")
 
+      -- Helper: Check if cursor is directly before a closing delimiter
+      local function is_before_closing_pair()
+        local col = vim.api.nvim_win_get_cursor(0)[2]
+        local line = vim.api.nvim_get_current_line()
+        local next_char = line:sub(col + 1, col + 1)
+        local delimiters = {
+          [")"] = true,
+          ["]"] = true,
+          ["}"] = true,
+          [">"] = true,
+          ['"'] = true,
+          ["'"] = true,
+          ["`"] = true,
+        }
+        return delimiters[next_char] or false
+      end
+
       cmp.setup({
         snippet = {
           expand = function(args)
@@ -299,6 +319,8 @@ require("lazy").setup({
               cmp.select_next_item()
             elseif has_luasnip and luasnip.expand_or_jumpable() then
               luasnip.expand_or_jump()
+            elseif is_before_closing_pair() then
+              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, true, true), "n", false)
             else
               fallback()
             end
@@ -348,6 +370,26 @@ require("lazy").setup({
       require("Comment").setup()
     end,
   },
+
+  -- 11. File Explorer (nvim-tree)
+  {
+    "nvim-tree/nvim-tree.lua",
+    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("nvim-tree").setup({
+        view = {
+          width = 30,
+        },
+        renderer = {
+          group_empty = true,
+        },
+        filters = {
+          dotfiles = false,
+        },
+      })
+    end,
+  },
 }, {
   ui = {
     border = "rounded",
@@ -362,6 +404,81 @@ vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Fin
 vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Buffers" })
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "Help tags" })
+
+-- File Tree Toggle (<leader>e)
+vim.keymap.set("n", "<leader>e", function()
+  local ok, tree = pcall(require, "nvim-tree.api")
+  if ok then
+    tree.tree.toggle()
+  else
+    vim.cmd("Lexplore")
+  end
+end, { desc = "Toggle file tree" })
+
+-- Fast Terminal Toggle (12 rows bottom split)
+local term_state = {
+  buf = nil,
+  win = nil,
+}
+
+local function toggle_terminal()
+  if term_state.win and vim.api.nvim_win_is_valid(term_state.win) then
+    vim.api.nvim_win_close(term_state.win, false)
+    term_state.win = nil
+    return
+  end
+
+  vim.cmd("botright 12split")
+  term_state.win = vim.api.nvim_get_current_win()
+
+  local has_active_job = false
+  if term_state.buf and vim.api.nvim_buf_is_valid(term_state.buf) then
+    local job_id = vim.b[term_state.buf].terminal_job_id
+    if job_id and vim.fn.jobwait({ job_id }, 0)[1] == -1 then
+      has_active_job = true
+    end
+  end
+
+  if has_active_job then
+    vim.api.nvim_win_set_buf(term_state.win, term_state.buf)
+  else
+    vim.cmd("terminal")
+    term_state.buf = vim.api.nvim_get_current_buf()
+    vim.bo[term_state.buf].buflisted = false
+  end
+
+  vim.wo[term_state.win].number = false
+  vim.wo[term_state.win].relativenumber = false
+  vim.wo[term_state.win].signcolumn = "no"
+  vim.cmd("startinsert")
+end
+
+vim.keymap.set("n", "<leader>t", toggle_terminal, { desc = "Toggle bottom terminal (12 rows)" })
+vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { desc = "Switch to normal mode from terminal" })
+
+-- Delimiter & Pair Stepping (Tab jump-out fallback for insert mode)
+local function is_before_closing_pair()
+  local col = vim.api.nvim_win_get_cursor(0)[2]
+  local line = vim.api.nvim_get_current_line()
+  local next_char = line:sub(col + 1, col + 1)
+  local delimiters = {
+    [")"] = true,
+    ["]"] = true,
+    ["}"] = true,
+    [">"] = true,
+    ['"'] = true,
+    ["'"] = true,
+    ["`"] = true,
+  }
+  return delimiters[next_char] or false
+end
+
+vim.keymap.set("i", "<Tab>", function()
+  if is_before_closing_pair() then
+    return "<Right>"
+  end
+  return "<Tab>"
+end, { expr = true, silent = true, desc = "Tab step past delimiter or indent" })
 
 -- Bufferline Keybindings
 vim.keymap.set("n", "<Tab>", ":BufferLineCycleNext<CR>", { silent = true, desc = "Next open file" })
@@ -392,4 +509,5 @@ vim.api.nvim_set_hl(0, "Normal", { bg = "#000000" })
 vim.api.nvim_set_hl(0, "NormalNC", { bg = "#000000" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#000000" })
 vim.api.nvim_set_hl(0, "SignColumn", { bg = "#000000" })
+vim.api.nvim_set_hl(0, "CursorLine", { bg = "#111111" })
 vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "#000000", fg = "#000000" })

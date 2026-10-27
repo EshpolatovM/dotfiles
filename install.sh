@@ -115,7 +115,17 @@ main() {
     link_file "$DOTFILES_DIR/ideavim/.ideavimrc" "$HOME/.ideavimrc"
   fi
 
-  # 5. Custom Scripts
+  # 5. Neovim
+  log_info "Configuring Neovim..."
+  mkdir -p "$HOME/.config/nvim"
+  if [ -f "$DOTFILES_DIR/nvim/init.lua" ]; then
+    link_file "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+  fi
+  if [ -f "$DOTFILES_DIR/nvim/lazy-lock.json" ]; then
+    link_file "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
+  fi
+
+  # 6. Custom Scripts
   log_info "Configuring Custom Scripts in ~/.local/bin..."
   mkdir -p "$HOME/.local/bin"
   if [ -d "$DOTFILES_DIR/scripts" ]; then
