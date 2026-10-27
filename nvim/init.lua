@@ -390,6 +390,12 @@ require("lazy").setup({
       })
     end,
   },
+
+  -- 12. Productivity (WakaTime)
+  {
+    "wakatime/vim-wakatime",
+    lazy = false,
+  },
 }, {
   ui = {
     border = "rounded",
