@@ -371,21 +371,17 @@ require("lazy").setup({
     end,
   },
 
-  -- 11. File Explorer (nvim-tree)
+  -- 11. File Explorer (oil.nvim)
   {
-    "nvim-tree/nvim-tree.lua",
-    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+    "stevearc/oil.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("nvim-tree").setup({
-        view = {
-          width = 30,
-        },
-        renderer = {
-          group_empty = true,
-        },
-        filters = {
-          dotfiles = false,
+      require("oil").setup({
+        default_file_explorer = true,
+        delete_to_trash = true,
+        skip_confirm_for_simple_edits = true,
+        view_options = {
+          show_hidden = true,
         },
       })
     end,
@@ -432,15 +428,9 @@ vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "Live
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Buffers" })
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "Help tags" })
 
--- File Tree Toggle (<leader>e)
-vim.keymap.set("n", "<leader>e", function()
-  local ok, tree = pcall(require, "nvim-tree.api")
-  if ok then
-    tree.tree.toggle()
-  else
-    vim.cmd("Lexplore")
-  end
-end, { desc = "Toggle file tree" })
+-- File Explorer (Oil)
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Open Oil" })
 
 -- Fast Terminal Toggle (12 rows bottom split)
 local term_state = {
