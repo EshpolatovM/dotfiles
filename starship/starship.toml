@@ -1,0 +1,75 @@
+# ==============================================================================
+# Professional Starship Prompt Configuration
+# Clean, fast, keyboard-focused, high visibility for directory, git, and exit status.
+# ==============================================================================
+
+format = """
+$directory$git_branch$git_status$nodejs$python$golang$rust$cmd_duration$jobs
+$status$character"""
+
+add_newline = true
+
+[directory]
+style = "bold cyan"
+truncation_length = 3
+truncate_to_repo = true
+truncation_symbol = "…/"
+format = "[$path]($style) "
+
+[git_branch]
+style = "bold purple"
+format = "on [$symbol$branch]($style) "
+symbol = ""
+
+[git_status]
+style = "bold red"
+format = "([$all_status$ahead_behind]($style) )"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+[nodejs]
+style = "bold green"
+format = "[node $version]($style) "
+disabled = false
+
+[python]
+style = "bold yellow"
+format = "[py $version]($style) "
+disabled = false
+
+[golang]
+style = "bold cyan"
+format = "[go $version]($style) "
+disabled = false
+
+[rust]
+style = "bold red"
+format = "[rs $version]($style) "
+disabled = false
+
+[cmd_duration]
+min_time = 2000
+style = "bold yellow"
+format = "took [$duration]($style) "
+
+[jobs]
+style = "bold blue"
+symbol = "✦ "
+format = "[$symbol$number]($style) "
+
+[status]
+style = "bold red"
+symbol = "✘ "
+format = "[$symbol$status]($style)"
+disabled = false
+
+[character]
+success_symbol = "[➜](bold green) "
+error_symbol = "[➜](bold red) "

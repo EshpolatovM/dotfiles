@@ -1,0 +1,70 @@
+-- =============================================================================
+-- Professional psql Configuration
+-- Optimized for keyboard-only navigation, readability, and performance.
+-- =============================================================================
+
+-- 1. Silence startup output while evaluating settings
+\set QUIET 1
+
+-- 2. Modern Colored Prompts (ANSI escape codes wrapped in %[%] for proper readline calculation)
+-- Prompt 1: [user@db:status#] or > for regular user
+-- User in cyan, host/db in green, transaction indicator in yellow/red, superuser symbol (# vs >)
+\set PROMPT1 '%[%033[1;36m%]%n%[%033[0m%]@%[%033[1;32m%]%/%[%033[0m%]%[%033[1;33m%]%x%[%033[0m%]%# '
+-- Prompt 2: Continuation line prompt
+\set PROMPT2 '%[%033[1;36m%]%n%[%033[0m%]@%[%033[1;32m%]%/%[%033[0m%]%[%033[1;33m%]%x%[%033[0m%]%R '
+
+-- 3. Visual Table Formatting & Borders
+-- Unicode clean line drawing borders
+\pset linestyle unicode
+\pset border 2
+\pset format aligned
+
+-- Human-readable NULL representation
+\pset null 'NULL'
+
+-- Automatic expanded display for wide tables (switches to vertical mode if query is wider than terminal)
+\x auto
+
+-- 4. Execution Timing
+-- Display execution time for every query (ms)
+\timing on
+
+-- 5. Command Completion & History Settings
+-- Autocomplete SQL keywords in uppercase (SELECT, WHERE, etc.)
+\set COMP_KEYWORD_CASE upper
+
+-- Ignore duplicate entries in command history
+\set HISTCONTROL ignoredups
+
+-- Preserve up to 50,000 commands in history
+\set HISTSIZE 50000
+
+-- Database-specific history files to keep projects clean
+\set HISTFILE ~/.psql_history- :DBNAME
+
+-- 6. Keyboard Pager Configuration (pspg)
+-- Use pspg with theme 14 (dark/solarized), reprint on exit, mouse disabled for pure keyboard navigation
+\setenv PSQL_PAGER 'pspg -s 14 -X --quit-if-one-screen --no-mouse'
+\setenv PAGER 'pspg -s 14 -X --quit-if-one-screen --no-mouse'
+
+-- 7. Developer Productivity Shortcuts (Execute via :shortcut_name)
+-- List databases with formatted sizes
+\set dbs 'SELECT datname AS database, pg_size_pretty(pg_database_size(datname)) AS size, datcollate AS collation FROM pg_database ORDER BY pg_database_size(datname) DESC;'
+
+-- List user tables with formatted sizes
+\set tables 'SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname || \'.\' || tablename)) AS total_size FROM pg_tables WHERE schemaname NOT IN (\'pg_catalog\', \'information_schema\') ORDER BY pg_total_relation_size(schemaname || \'.\' || tablename) DESC;'
+
+-- List active queries and execution duration
+\set activity 'SELECT pid, now() - query_start AS duration, state, query FROM pg_stat_activity WHERE state != \'idle\' AND pid <> pg_backend_pid() ORDER BY duration DESC;'
+
+-- List active locks and blocked queries
+\set locks 'SELECT pid, locktype, relation::regclass, mode, granted FROM pg_locks WHERE NOT pid = pg_backend_pid();'
+
+-- List all database roles and system privileges
+\set roles 'SELECT rolname AS role, rolsuper AS superuser, rolcreaterole AS create_role, rolcreatedb AS create_db, rolcanlogin AS login FROM pg_roles ORDER BY rolname;'
+
+-- List installed database extensions
+\set extensions 'SELECT name, default_version, installed_version, comment FROM pg_available_extensions WHERE installed_version IS NOT NULL;'
+
+-- 8. Restore normal output
+\unset QUIET
