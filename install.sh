@@ -109,13 +109,20 @@ main() {
     link_file "$DOTFILES_DIR/sway/wallpaper.png" "$HOME/.config/sway/wallpaper.png"
   fi
 
-  # 4. IdeaVim
+  # 4. Terminal Emulator (Foot)
+  log_info "Configuring Foot Terminal..."
+  mkdir -p "$HOME/.config/foot"
+  if [ -f "$DOTFILES_DIR/foot/foot.ini" ]; then
+    link_file "$DOTFILES_DIR/foot/foot.ini" "$HOME/.config/foot/foot.ini"
+  fi
+
+  # 5. IdeaVim
   log_info "Configuring IdeaVim..."
   if [ -f "$DOTFILES_DIR/ideavim/.ideavimrc" ]; then
     link_file "$DOTFILES_DIR/ideavim/.ideavimrc" "$HOME/.ideavimrc"
   fi
 
-  # 5. Neovim
+  # 6. Neovim
   log_info "Configuring Neovim..."
   mkdir -p "$HOME/.config/nvim"
   if [ -f "$DOTFILES_DIR/nvim/init.lua" ]; then
@@ -125,7 +132,7 @@ main() {
     link_file "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
   fi
 
-  # 6. Custom Scripts
+  # 7. Custom Scripts
   log_info "Configuring Custom Scripts in ~/.local/bin..."
   mkdir -p "$HOME/.local/bin"
   if [ -d "$DOTFILES_DIR/scripts" ]; then
