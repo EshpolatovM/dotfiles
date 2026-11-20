@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Screen recording stop script using wf-recorder
+set -euo pipefail
+
+PID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wf-recorder.pid"
+
+notify() {
+    local summary="$1"
+    local body="$2"
+    local urgency="${3:-normal}"
+    # Run notify-send asynchronously with timeout so it never blocks
+    if command -v notify-send >/dev/null 2>&1; then
+        ( notify-send -u "$urgency" -t 3000 -a "Screen Recorder" "$summary" "$body" >/dev/null 2>&1 & ) || true
+    fi
+}
+
+# 1. Check if recording process is tracked
+if [ ! -f "$PID_FILE" ]; then
+    notify "Yozish topilmadi" "Hozirda faol ekran yozish jarayoni mavjud emas." "normal"
+    exit 0
+fi
+
+RECORDING_PID=$(cat "$PID_FILE" 2>/dev/null || true)
+rm -f "$PID_FILE"
+
+if [ -z "$RECORDING_PID" ] || ! kill -0 "$RECORDING_PID" 2>/dev/null; then
+    notify "Yozish topilmadi" "wf-recorder jarayoni topilmadi." "normal"
+    exit 0
+fi
+
+# 2. Gracefully stop wf-recorder using SIGINT (Ctrl+C equivalent to finalize MP4 container)
+kill -SIGINT "$RECORDING_PID" 2>/dev/null || true
+
+# Wait up to 4 seconds for clean exit and MP4 header write
+WAIT_COUNT=0
+while kill -0 "$RECORDING_PID" 2>/dev/null && [ "$WAIT_COUNT" -lt 8 ]; do
+    sleep 0.5
+    WAIT_COUNT=$((WAIT_COUNT + 1))
+done
+
+# If still alive after timeout, terminate
+if kill -0 "$RECORDING_PID" 2>/dev/null; then
+    kill -SIGKILL "$RECORDING_PID" 2>/dev/null || true
+fi
+
+notify "Video yozish to'xtatildi" "Video saqlandi: ~/developer/navi/video/" "normal"

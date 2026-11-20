@@ -27,6 +27,9 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
+-- Treat .h files as C header files by default
+vim.g.c_syntax_for_h = 1
+
 -- ============================================================================
 -- 2. Package Manager (lazy.nvim Bootstrap)
 -- ============================================================================
@@ -47,356 +50,12 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- ============================================================================
--- 3. Plugins Setup
+-- 3. Plugins Setup (Modular import from lua/plugins/)
 -- ============================================================================
 require("lazy").setup({
-  -- 1. Theme & Aesthetics: "calabimeow/island.nvim"
-  {
-    "calabimeow/island.nvim",
-    name = "island",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      pcall(vim.cmd.colorscheme, "island")
-      local function apply_oled_black()
-        vim.api.nvim_set_hl(0, "Normal", { bg = "#000000" })
-        vim.api.nvim_set_hl(0, "NormalNC", { bg = "#000000" })
-        vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#000000" })
-        vim.api.nvim_set_hl(0, "SignColumn", { bg = "#000000" })
-        vim.api.nvim_set_hl(0, "CursorLine", { bg = "#111111" })
-        vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "#000000", fg = "#000000" })
-      end
-      apply_oled_black()
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = apply_oled_black,
-      })
-    end,
+  spec = {
+    { import = "plugins" },
   },
-
-  -- 2. Web Dev Icons
-  {
-    "nvim-tree/nvim-web-devicons",
-    lazy = true,
-  },
-
-  -- 3. Buffer Management & Visual Tabs (Bufferline)
-  {
-    "akinsho/bufferline.nvim",
-    version = "*",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("bufferline").setup({
-        options = {
-          mode = "buffers",
-          separator_style = "thin",
-          show_buffer_close_icons = false,
-          show_close_icon = false,
-          show_tab_indicators = true,
-          always_show_bufferline = true,
-          diagnostics = false,
-        },
-        highlights = {
-          fill = {
-            bg = "#000000",
-          },
-          background = {
-            bg = "#000000",
-          },
-          buffer_selected = {
-            bg = "#111111",
-            bold = true,
-          },
-          separator = {
-            fg = "#222222",
-            bg = "#000000",
-          },
-          separator_selected = {
-            fg = "#222222",
-            bg = "#111111",
-          },
-        },
-      })
-    end,
-  },
-
-  -- 4. Telescope (Fuzzy Finder with Safeguards)
-  {
-    "nvim-telescope/telescope.nvim",
-    lazy = false,
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      local telescope = require("telescope")
-      local builtin = require("telescope.builtin")
-      telescope.setup({
-        defaults = {
-          file_ignore_patterns = {
-            "node_modules",
-            "%.git/",
-            "dist/",
-            "build/",
-            "%.lock",
-          },
-          mappings = {
-            i = {
-              ["<C-u>"] = false,
-            },
-          },
-        },
-      })
-
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Buffers" })
-      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
-    end,
-  },
-
-  -- 5. Treesitter (Syntax Highlighting)
-  {
-    "nvim-treesitter/nvim-treesitter",
-    lazy = false,
-    build = ":TSUpdate",
-    config = function()
-      local ok_configs, configs = pcall(require, "nvim-treesitter.configs")
-      if ok_configs then
-        configs.setup({
-          ensure_installed = { "javascript", "typescript", "tsx", "html", "css", "json", "lua" },
-          highlight = { enable = true },
-          indent = { enable = true },
-        })
-      else
-        local ts = require("nvim-treesitter")
-        ts.setup()
-        pcall(function()
-          ts.install({ "javascript", "typescript", "tsx", "html", "css", "json", "lua" })
-        end)
-      end
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "javascript",
-          "javascriptreact",
-          "typescript",
-          "typescriptreact",
-          "html",
-          "css",
-          "json",
-          "jsonc",
-          "lua",
-        },
-        callback = function()
-          pcall(vim.treesitter.start)
-        end,
-      })
-    end,
-  },
-
-  -- 6. Autopairs (nvim-autopairs with Treesitter support)
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    config = function()
-      local autopairs = require("nvim-autopairs")
-      autopairs.setup({
-        check_ts = true,
-        enable_moveright = true,
-        ts_config = {
-          lua = { "string" },
-          javascript = { "template_string" },
-        },
-      })
-      local ok_cmp, cmp = pcall(require, "cmp")
-      if ok_cmp then
-        local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-        cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
-      end
-    end,
-  },
-
-  -- 7. Auto-tags (nvim-ts-autotag: HTML/JSX/TSX close & rename)
-  {
-    "windwp/nvim-ts-autotag",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      require("nvim-ts-autotag").setup({
-        opts = {
-          enable_close = true,
-          enable_rename = true,
-          enable_close_on_slash = true,
-        },
-      })
-    end,
-  },
-
-  -- 8. Formatting on Save & Manual (conform.nvim)
-  {
-    "stevearc/conform.nvim",
-    event = { "BufWritePre" },
-    cmd = { "ConformInfo" },
-    config = function()
-      require("conform").setup({
-        formatters_by_ft = {
-          javascript = { "prettier" },
-          typescript = { "prettier" },
-          javascriptreact = { "prettier" },
-          typescriptreact = { "prettier" },
-          json = { "prettier" },
-          css = { "prettier" },
-          html = { "prettier" },
-          markdown = { "prettier" },
-        },
-        format_on_save = {
-          timeout_ms = 500,
-          lsp_fallback = true,
-        },
-      })
-    end,
-  },
-
-  -- 9. Modern LSP & Autocompletion
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
-      "hrsh7th/nvim-cmp",
-      "hrsh7th/cmp-nvim-lsp",
-      "L3MON4D3/LuaSnip",
-    },
-    config = function()
-      local servers = { "ts_ls", "tailwindcss", "html", "cssls" }
-
-      require("mason").setup()
-      require("mason-lspconfig").setup({
-        ensure_installed = servers,
-        automatic_enable = true,
-      })
-
-      local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-      -- Configure servers using modern vim.lsp.config (Neovim 0.11/0.12 API)
-      vim.lsp.config("*", {
-        capabilities = capabilities,
-      })
-
-      for _, server in ipairs(servers) do
-        vim.lsp.enable(server)
-      end
-
-      local cmp = require("cmp")
-      local has_luasnip, luasnip = pcall(require, "luasnip")
-
-      -- Helper: Check if cursor is directly before a closing delimiter
-      local function is_before_closing_pair()
-        local col = vim.api.nvim_win_get_cursor(0)[2]
-        local line = vim.api.nvim_get_current_line()
-        local next_char = line:sub(col + 1, col + 1)
-        local delimiters = {
-          [")"] = true,
-          ["]"] = true,
-          ["}"] = true,
-          [">"] = true,
-          ['"'] = true,
-          ["'"] = true,
-          ["`"] = true,
-        }
-        return delimiters[next_char] or false
-      end
-
-      cmp.setup({
-        snippet = {
-          expand = function(args)
-            if has_luasnip then
-              luasnip.lsp_expand(args.body)
-            end
-          end,
-        },
-        mapping = cmp.mapping.preset.insert({
-          ["<C-Space>"] = cmp.mapping.complete(),
-          ["<CR>"] = cmp.mapping.confirm({ select = true }),
-          ["<Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_next_item()
-            elseif has_luasnip and luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
-            elseif is_before_closing_pair() then
-              vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Right>", true, true, true), "n", false)
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
-          ["<S-Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_prev_item()
-            elseif has_luasnip and luasnip.jumpable(-1) then
-              luasnip.jump(-1)
-            else
-              fallback()
-            end
-          end, { "i", "s" }),
-        }),
-        sources = cmp.config.sources({
-          { name = "nvim_lsp" },
-        }),
-      })
-
-      -- Buffer-local LSP Keymaps
-      vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
-        callback = function(ev)
-          local opts = { buffer = ev.buf }
-          vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "LSP: Definition" }))
-          vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP: Hover" }))
-          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "LSP: Code action" }))
-          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "LSP: Rename" }))
-          vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Diagnostic: Open float" }))
-        end,
-      })
-    end,
-  },
-
-  -- 10. Essential Utilities
-  {
-    "kylechui/nvim-surround",
-    event = "VeryLazy",
-    config = function()
-      require("nvim-surround").setup()
-    end,
-  },
-  {
-    "numToStr/Comment.nvim",
-    event = "VeryLazy",
-    config = function()
-      require("Comment").setup()
-    end,
-  },
-
-  -- 11. File Explorer (oil.nvim)
-  {
-    "stevearc/oil.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("oil").setup({
-        default_file_explorer = true,
-        delete_to_trash = true,
-        skip_confirm_for_simple_edits = true,
-        view_options = {
-          show_hidden = true,
-        },
-      })
-    end,
-  },
-
-  -- 12. Productivity (WakaTime)
-  {
-    "wakatime/vim-wakatime",
-    lazy = false,
-    init = function()
-      vim.g.wakatime_debug = 0
-      vim.g.wakatime_ScreenSaverMode = 0
-    end,
-  },
-}, {
   ui = {
     border = "rounded",
   },
@@ -473,43 +132,27 @@ end
 vim.keymap.set("n", "<leader>t", toggle_terminal, { desc = "Toggle bottom terminal (12 rows)" })
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { desc = "Switch to normal mode from terminal" })
 
--- Delimiter & Pair Stepping (Tab jump-out fallback for insert mode)
-local function is_before_closing_pair()
-  local col = vim.api.nvim_win_get_cursor(0)[2]
-  local line = vim.api.nvim_get_current_line()
-  local next_char = line:sub(col + 1, col + 1)
-  local delimiters = {
-    [")"] = true,
-    ["]"] = true,
-    ["}"] = true,
-    [">"] = true,
-    ['"'] = true,
-    ["'"] = true,
-    ["`"] = true,
-  }
-  return delimiters[next_char] or false
-end
-
-vim.keymap.set("i", "<Tab>", function()
-  if is_before_closing_pair() then
-    return "<Right>"
-  end
-  return "<Tab>"
-end, { expr = true, silent = true, desc = "Tab step past delimiter or indent" })
-
 -- Bufferline Keybindings
 vim.keymap.set("n", "<Tab>", ":BufferLineCycleNext<CR>", { silent = true, desc = "Next open file" })
 vim.keymap.set("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", { silent = true, desc = "Previous open file" })
 vim.keymap.set("n", "<leader>x", ":bdelete<CR>", { silent = true, desc = "Close current buffer" })
 
--- Prettier Manual Formatting Keymap
+-- Manual Formatting Keymap & Command (:Format)
 vim.keymap.set({ "n", "v" }, "<leader>mp", function()
   require("conform").format({
-    lsp_fallback = true,
+    lsp_format = "fallback",
     async = false,
-    timeout_ms = 500,
+    timeout_ms = 1000,
   })
-end, { desc = "Manual format (Prettier)" })
+end, { desc = "Manual format (conform)" })
+
+vim.api.nvim_create_user_command("Format", function()
+  require("conform").format({
+    lsp_format = "fallback",
+    async = false,
+    timeout_ms = 1000,
+  })
+end, { desc = "Manual format current buffer (conform)" })
 
 -- Quick Node.js Runner Keymap
 vim.keymap.set("n", "<leader>r", ":w<CR>:!node %<CR>", { noremap = true, silent = false, desc = "Save and run file with node" })
@@ -520,14 +163,102 @@ vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Diagnostic
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostic: Prev error/warning" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic: Next error/warning" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "LSP: Definition" })
+vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "LSP: References" })
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP: Hover" })
 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "LSP: Rename" })
 
--- Enforce colorscheme and OLED black background
-pcall(vim.cmd.colorscheme, "island")
-vim.api.nvim_set_hl(0, "Normal", { bg = "#000000" })
-vim.api.nvim_set_hl(0, "NormalNC", { bg = "#000000" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#000000" })
-vim.api.nvim_set_hl(0, "SignColumn", { bg = "#000000" })
-vim.api.nvim_set_hl(0, "CursorLine", { bg = "#111111" })
-vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "#000000", fg = "#000000" })
+local c_runner_win = nil
+local c_runner_buf = nil
+
+-- C/C++ Development Workflow (Buffer-local runner, header switcher, GDB integration)
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("CDevelopmentConfig", { clear = true }),
+  pattern = { "c", "cpp" },
+  callback = function(ev)
+    local opts = { buffer = ev.buf }
+
+    -- C va C header fayllari uchun o'rganish maqsadida avtomatik to'ldirishlarni o'chirish
+    vim.bo[ev.buf].omnifunc = ""
+    vim.bo[ev.buf].completefunc = ""
+
+    -- Buffer-local Build & Run: Saves, compiles, and runs in interactive terminal split
+    vim.keymap.set("n", "<leader>r", function()
+      vim.cmd("write")
+
+      -- Agar avvalgi runner terminal oynasi ochiq bo'lsa, uni yopish
+      if c_runner_win and vim.api.nvim_win_is_valid(c_runner_win) then
+        pcall(vim.api.nvim_win_close, c_runner_win, true)
+      end
+      if c_runner_buf and vim.api.nvim_buf_is_valid(c_runner_buf) then
+        pcall(vim.api.nvim_buf_delete, c_runner_buf, { force = true })
+      end
+
+      local ext = vim.fn.expand("%:e")
+      local compiler = (ext == "cpp" or ext == "cc" or ext == "cxx" or vim.bo[ev.buf].filetype == "cpp") and "g++" or "gcc"
+      local cmd
+      if vim.fn.filereadable("Makefile") == 1 or vim.fn.filereadable("makefile") == 1 then
+        cmd = "make && ./%<"
+      else
+        cmd = string.format("%s -Wall \"%%\" -o \"%%<\" && \"./%%<\"", compiler)
+      end
+
+      -- Pastki qismda 12 qatorli interaktiv terminal ochish
+      vim.cmd("botright 12split | terminal " .. cmd)
+      c_runner_win = vim.api.nvim_get_current_win()
+      c_runner_buf = vim.api.nvim_get_current_buf()
+
+      -- Buffer boshqaruvini buzmaslik uchun unlisted qilish va oynani toza ko'rsatish
+      vim.bo[c_runner_buf].buflisted = false
+      vim.wo[c_runner_win].number = false
+      vim.wo[c_runner_win].relativenumber = false
+      vim.wo[c_runner_win].signcolumn = "no"
+
+      -- Darhol interaktiv kiritish rejimiga (startinsert) o'tish (scanf/cin uchun)
+      vim.cmd("startinsert")
+
+      -- Terminal jarayoni tugagach q yoki Enter orqali oson chiqish
+      vim.api.nvim_create_autocmd("TermClose", {
+        buffer = c_runner_buf,
+        once = true,
+        callback = function()
+          local close_opts = { buffer = c_runner_buf, silent = true, desc = "Close runner terminal" }
+          vim.keymap.set({ "n", "t" }, "q", "<cmd>close<CR>", close_opts)
+          vim.keymap.set({ "n", "t" }, "<CR>", "<cmd>close<CR>", close_opts)
+        end,
+      })
+    end, vim.tbl_extend("force", opts, { desc = "C/C++: Save, compile, and run in interactive terminal" }))
+
+    -- Header / Source switch (.c <-> .h)
+    vim.keymap.set("n", "<leader>gh", function()
+      local ext = vim.fn.expand("%:e")
+      local root = vim.fn.expand("%:r")
+      local target
+      if ext == "c" then
+        target = root .. ".h"
+      elseif ext == "h" then
+        target = root .. ".c"
+      end
+      if target and vim.fn.filereadable(target) == 1 then
+        vim.cmd("edit " .. vim.fn.fnameescape(target))
+      else
+        vim.notify("Corresponding header/source file not found: " .. (target or ""), vim.log.levels.WARN)
+      end
+    end, vim.tbl_extend("force", opts, { desc = "C: Switch between .c and .h" }))
+  end,
+})
+
+-- Native GDB debugger integration via built-in Termdebug
+vim.api.nvim_create_user_command("CDebug", function(opts)
+  vim.cmd("packadd termdebug")
+  vim.g.termdebug_wide = 1
+  local target = opts.args ~= "" and opts.args or vim.fn.expand("%:r")
+  vim.cmd("Termdebug " .. target)
+end, { nargs = "?", complete = "file", desc = "Start GDB debugger on executable" })
+
+-- Enforce colorscheme
+pcall(vim.cmd.colorscheme, "onedark_vivid")
+
+-- Live Server integration (:GoLive, :GoLiveStop)
+pcall(function()
+  require("live_server").setup()
+end)

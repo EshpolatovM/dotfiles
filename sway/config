@@ -2,8 +2,11 @@
 # Copy this to ~/.config/sway/config and edit it to your liking.
 #
 # Read `man 5 sway` for a complete reference.
-# Butun ekranni olib clipboard'ga nusxalash (PrtSc)
-bindsym Print exec grim - | wl-copy
+# Wayscriber daemon autostart
+exec wayscriber --daemon
+
+# Annotation overlay toggle with PrtSc
+bindsym Print exec wayscriber --daemon-toggle
 # Belgilangan maydonni tanlab olish (Shift + PrtSc)
 bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
 
@@ -22,6 +25,31 @@ set $right l
 set $term foot
 # Your preferred application launcher
 set $menu wmenu-run
+# Screen annotation (Gromit-MPX & SwayAnnotate Floating Toolbar)
+# Autostart daemon
+exec_always --no-startup-id gromit-mpx
+
+# Keybindings for annotation control
+bindsym $mod+F9 exec gromit-mpx --toggle
+bindsym $mod+Shift+F9 exec gromit-mpx --clear
+bindsym $mod+F8 exec gromit-mpx --undo
+bindsym $mod+Shift+F8 exec gromit-mpx --redo
+bindsym $mod+Ctrl+F9 exec gromit-mpx --visibility
+
+# Lightshot / Epic Pen Style Visual Floating Toolbar (Toggle via Super+grave or Alt+a)
+bindsym $mod+grave exec sway-annotate
+bindsym Mod1+a exec sway-annotate
+
+# Screen Recording (wf-recorder)
+bindsym $mod+Shift+v exec /home/miraziz/.local/bin/wf-record-start
+bindsym $mod+Shift+x exec /home/miraziz/.local/bin/wf-record-stop
+
+
+
+
+# Gromit-MPX window rules (Prevent tiling/stealing focus)
+for_window [app_id="^Gromit-mpx$" title="^Gromit-MPX"] floating enable, border none, sticky enable
+for_window [class="^Gromit-mpx$" title="^Gromit-MPX"] floating enable, border none, sticky enable
 
 ### Output configuration
 #
@@ -224,6 +252,7 @@ bindsym $mod+c move position center
     bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
     bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
     bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+    bindsym $mod+Shift+m exec pactl set-source-port @DEFAULT_SOURCE@ analog-input-headset-mic || pactl set-source-port @DEFAULT_SOURCE@ analog-input-internal-mic
     # Special keys to adjust brightness via brightnessctl
     bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
     bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
@@ -240,6 +269,8 @@ bar {
     # When the status_command prints a new line to stdout, swaybar updates.
     # The default just shows the current date and time.
     status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+
+    tray_output none
 
     colors {
         statusline #ffffff

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Screen recording start script using wf-recorder
+set -euo pipefail
+
+PID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wf-recorder.pid"
+OUTPUT_DIR="$HOME/developer/navi/video"
+
+notify() {
+    local summary="$1"
+    local body="$2"
+    local urgency="${3:-normal}"
+    # Run notify-send asynchronously with timeout so it never blocks
+    if command -v notify-send >/dev/null 2>&1; then
+        ( notify-send -u "$urgency" -t 3000 -a "Screen Recorder" "$summary" "$body" >/dev/null 2>&1 & ) || true
+    fi
+}
+
+# 1. Check if already recording
+if [ -f "$PID_FILE" ]; then
+    RECORDING_PID=$(cat "$PID_FILE" 2>/dev/null || true)
+    if [ -n "$RECORDING_PID" ] && kill -0 "$RECORDING_PID" 2>/dev/null; then
+        notify "Yozib olish davom etmoqda" "Video allaqachon yozilmoqda (PID: $RECORDING_PID)." "critical"
+        exit 0
+    fi
+    rm -f "$PID_FILE"
+fi
+
+# 2. Ensure output directory exists
+mkdir -p "$OUTPUT_DIR"
+
+# 3. Generate timestamp filename
+TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
+OUTPUT_FILE="$OUTPUT_DIR/lesson-${TIMESTAMP}.mp4"
+
+# 4. Start wf-recorder with audio
+# Run fully detached
+nohup wf-recorder -a -f "$OUTPUT_FILE" >/dev/null 2>&1 &
+WF_PID=$!
+
+echo "$WF_PID" > "$PID_FILE"
+
+# Quick check that it didn't exit immediately
+sleep 0.5
+if kill -0 "$WF_PID" 2>/dev/null; then
+    notify "Video yozish boshlandi" "Fayl: lesson-${TIMESTAMP}.mp4\nTo'xtatish: Super + Shift + X" "normal"
+else
+    rm -f "$PID_FILE"
+    notify "Xatolik" "wf-recorder ishga tushmadi!" "critical"
+    exit 1
+fi

@@ -101,12 +101,19 @@ main() {
     link_file "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
   fi
 
-  # 3. Sway Window Manager
-  log_info "Configuring Sway WM..."
+  # 3. Sway Window Manager & Annotation Tools
+  log_info "Configuring Sway WM & Screen Tools..."
   mkdir -p "$HOME/.config/sway"
   link_file "$DOTFILES_DIR/sway/config" "$HOME/.config/sway/config"
   if [ -f "$DOTFILES_DIR/sway/wallpaper.png" ]; then
     link_file "$DOTFILES_DIR/sway/wallpaper.png" "$HOME/.config/sway/wallpaper.png"
+  fi
+  if [ -f "$DOTFILES_DIR/gromit-mpx/gromit-mpx.cfg" ]; then
+    link_file "$DOTFILES_DIR/gromit-mpx/gromit-mpx.cfg" "$HOME/.config/gromit-mpx.cfg"
+  fi
+  if [ -f "$DOTFILES_DIR/wayscriber/config.toml" ]; then
+    mkdir -p "$HOME/.config/wayscriber"
+    link_file "$DOTFILES_DIR/wayscriber/config.toml" "$HOME/.config/wayscriber/config.toml"
   fi
 
   # 4. Terminal Emulator (Foot)
@@ -116,13 +123,29 @@ main() {
     link_file "$DOTFILES_DIR/foot/foot.ini" "$HOME/.config/foot/foot.ini"
   fi
 
-  # 5. IdeaVim
+  # 5. Starship Prompt
+  if [ -f "$DOTFILES_DIR/starship/starship.toml" ]; then
+    log_info "Configuring Starship Prompt..."
+    link_file "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
+  fi
+
+  # 6. Tmux & Psql
+  if [ -f "$DOTFILES_DIR/tmux/.tmux.conf" ]; then
+    log_info "Configuring Tmux..."
+    link_file "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
+  fi
+  if [ -f "$DOTFILES_DIR/psql/.psqlrc" ]; then
+    log_info "Configuring Psql..."
+    link_file "$DOTFILES_DIR/psql/.psqlrc" "$HOME/.psqlrc"
+  fi
+
+  # 7. IdeaVim
   log_info "Configuring IdeaVim..."
   if [ -f "$DOTFILES_DIR/ideavim/.ideavimrc" ]; then
     link_file "$DOTFILES_DIR/ideavim/.ideavimrc" "$HOME/.ideavimrc"
   fi
 
-  # 6. Neovim
+  # 8. Neovim
   log_info "Configuring Neovim..."
   mkdir -p "$HOME/.config/nvim"
   if [ -f "$DOTFILES_DIR/nvim/init.lua" ]; then
@@ -131,8 +154,11 @@ main() {
   if [ -f "$DOTFILES_DIR/nvim/lazy-lock.json" ]; then
     link_file "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
   fi
+  if [ -d "$DOTFILES_DIR/nvim/lua" ]; then
+    link_file "$DOTFILES_DIR/nvim/lua" "$HOME/.config/nvim/lua"
+  fi
 
-  # 7. Custom Scripts
+  # 9. Custom Scripts
   log_info "Configuring Custom Scripts in ~/.local/bin..."
   mkdir -p "$HOME/.local/bin"
   if [ -d "$DOTFILES_DIR/scripts" ]; then
